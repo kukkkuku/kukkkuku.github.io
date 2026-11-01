@@ -340,5 +340,14 @@ export async function downloadProgressExcel(data: ProgressData, drafts: Drafts, 
   const d = new Date()
   const p = (n: number) => String(n).padStart(2, '0')
   const base = [data.fileTitle, data.tabTitle].filter(Boolean).join(' ') || '추진현황'
-  return downloadStyledWorkbook(buildProgressWorkbook(data, drafts, l1s), `${base}_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}.xlsx`)
+  // 엑셀 파일을 만드는 중 오류가 나도 아무 반응이 없지 않게 -- 이유를 알린다
+  let wb: ExcelJS.Workbook
+  try {
+    wb = buildProgressWorkbook(data, drafts, l1s)
+  } catch (err) {
+    console.error('추진현황 엑셀 만들기 실패:', err)
+    alert('엑셀 파일을 만들지 못했습니다: ' + (err instanceof Error ? err.message : String(err)))
+    return false
+  }
+  return downloadStyledWorkbook(wb, `${base}_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}.xlsx`)
 }
